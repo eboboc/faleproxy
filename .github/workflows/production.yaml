@@ -2,12 +2,17 @@ name: Vercel Production Deployment
 env:
   VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
   VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+# Only run this workflow when the CI workflow completes successfully on main branch
 on:
-  push:
-    branches:
-      - main
+  workflow_run:
+    workflows: ["Node.js CI"]
+    branches: [main]
+    types: [completed]
 jobs:
   Deploy-Production:
+    # Only run if the CI workflow was successful
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
