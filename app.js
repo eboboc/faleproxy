@@ -53,20 +53,35 @@ app.post('/fetch', async (req, res) => {
     }).each(function() {
       // Replace text content but not in URLs or attributes
       const text = $(this).text();
-      const newText = text.replace(/yale/gi, 'Fale').replace(/Yale/g, 'Fale').replace(/yale/g, 'fale').replace(/YALE/g, 'FALE');
+      // Only replace if Yale/yale/YALE is present as a word
+      let newText = text;
+      if (text.match(/\bYale\b|\byale\b|\bYALE\b/)) {
+        // Preserve case when replacing
+        newText = text
+          .replace(/\bYALE\b/g, 'FALE')
+          .replace(/\bYale\b/g, 'Fale')
+          .replace(/\byale\b/g, 'fale');
+      }
       if (text !== newText) {
         $(this).replaceWith(newText);
       }
     });
     
     // Process title separately
-    const title = $('title').text().replace(/Yale/g, 'Fale').replace(/yale/g, 'fale');
-    $('title').text(title);
+    const titleText = $('title').text();
+    let newTitle = titleText;
+    if (titleText.match(/\bYale\b|\byale\b|\bYALE\b/)) {
+      newTitle = titleText
+        .replace(/\bYALE\b/g, 'FALE')
+        .replace(/\bYale\b/g, 'Fale')
+        .replace(/\byale\b/g, 'fale');
+    }
+    $('title').text(newTitle);
     
     return res.json({ 
       success: true, 
       content: $.html(),
-      title: title,
+      title: newTitle,
       originalUrl: url
     });
   } catch (error) {
