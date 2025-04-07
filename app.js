@@ -16,6 +16,11 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
+// Health check endpoint for Vercel
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'ok', environment: process.env.NODE_ENV || 'development' });
+});
+
 // API endpoint to fetch and modify content
 app.post('/fetch', async (req, res) => {
   try {

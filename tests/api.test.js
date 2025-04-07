@@ -115,4 +115,19 @@ describe('API Endpoints', () => {
     expect(response.statusCode).toBe(500);
     expect(response.body.error).toContain('Failed to fetch content');
   });
+
+  // Add the health check endpoint to the test app
+  testApp.get('/health', (req, res) => {
+    res.status(200).json({ status: 'ok', environment: process.env.NODE_ENV || 'development' });
+  });
+
+  test('GET /health should return status ok', async () => {
+    const response = await request(testApp)
+      .get('/health');
+
+    expect(response.statusCode).toBe(200);
+    // This will intentionally fail - expecting 'healthy' but the endpoint returns 'ok'
+    expect(response.body.status).toBe('healthy');
+    expect(response.body).toHaveProperty('environment');
+  });
 });
