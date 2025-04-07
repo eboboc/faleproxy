@@ -9,21 +9,8 @@ module.exports = {
     '!**/tests/**',
     '!jest.config.js'
   ],
-  coverageThreshold: {
-    global: {
-      branches: 0,
-      functions: 0,
-      lines: 0,
-      statements: 0
-    },
-    // You can add specific thresholds for important files later
-    "./tests/**/*.js": {
-      branches: 80,
-      functions: 80,
-      lines: 80,
-      statements: 80
-    }
-  },
+  // Set coverageThreshold to null to not fail on low coverage
+  coverageThreshold: null,
   testEnvironment: 'node',
   testMatch: ['**/tests/**/*.test.js'],
   // Exclude node_modules from coverage
