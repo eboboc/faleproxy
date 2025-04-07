@@ -4,8 +4,10 @@ const express = require('express');
 const path = require('path');
 const { sampleHtmlWithYale } = require('./test-utils');
 
-// Import app but don't let it listen on a port (we'll use supertest for that)
-// Create a test app with the same route handlers
+// Import the actual app from app.js
+const app = require('../app');
+
+// We'll still keep a test app for some specific tests
 const testApp = express();
 testApp.use(express.json());
 testApp.use(express.urlencoded({ extended: true }));
@@ -129,5 +131,50 @@ describe('API Endpoints', () => {
     // Fixed test to match actual response
     expect(response.body.status).toBe('ok');
     expect(response.body).toHaveProperty('environment');
+  });
+});
+
+// Tests for the actual app.js endpoints
+describe('App.js Endpoints', () => {
+  // Test the root endpoint
+  test('GET / should serve the index.html file', async () => {
+    const response = await request(app).get('/');
+    expect(response.statusCode).toBe(200);
+    expect(response.headers['content-type']).toMatch(/text\/html/);
+  });
+
+  // Test the health check endpoint
+  test('GET /health should return status ok', async () => {
+    const response = await request(app).get('/health');
+    expect(response.statusCode).toBe(200);
+    expect(response.body.status).toBe('ok');
+    expect(response.body).toHaveProperty('environment');
+  });
+
+  // Test the fetch endpoint with missing URL
+  test('POST /fetch should return error when URL is missing', async () => {
+    const response = await request(app)
+      .post('/fetch')
+      .send({});
+
+    expect(response.statusCode).toBe(400);
+    expect(response.body.error).toBe('URL is required');
+  });
+
+  // Test the fetch endpoint with a mocked URL
+  test('POST /fetch should fetch and replace Yale with Fale', async () => {
+    // Mock the external URL
+    nock('https://example.com')
+      .get('/')
+      .reply(200, sampleHtmlWithYale);
+
+    const response = await request(app)
+      .post('/fetch')
+      .send({ url: 'https://example.com/' });
+
+    expect(response.statusCode).toBe(200);
+    expect(response.body.success).toBe(true);
+    expect(response.body.title).toBe('Fale University Test Page');
+    expect(response.body.content).toContain('Welcome to Fale University');
   });
 });
