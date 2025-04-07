@@ -126,7 +126,8 @@ describe('API Endpoints', () => {
       .get('/health');
 
     expect(response.statusCode).toBe(200);
-    expect(response.body.status).toBe('ok');
+    // This will intentionally fail - expecting 'healthy' but the endpoint returns 'ok'
+    expect(response.body.status).toBe('healthy');
     expect(response.body).toHaveProperty('environment');
   });
 });
